@@ -8,8 +8,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.Util;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +41,7 @@ public class Main
 {
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
+    static int numPanoramas = 0;
 
     public Main()
     {
@@ -56,64 +61,70 @@ public class Main
         FMLJavaModLoadingContext.get()
                 .getModEventBus()
                 .addListener(this::doClientStuff);
+        FMLJavaModLoadingContext.get()
+                .getModEventBus()
+                .addListener(this::onStitch);
 
         // Register ourselves for server and other game events we are
         // interested in
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    public void onStitch(ModelBakeEvent event)
+    {
+        Main.loadPanoramas(Minecraft.getInstance());
+    }
+
+    static void loadPanoramas(Minecraft mc)
+    {
+        int i = 0;
+        int j;
+        TextureManager textureManager = mc.textureManager;
+        ResourceLocation loc;
+        File panoramas = new File(mc.gameDir, "panoramas");
+        if (panoramas.isDirectory())
+        {
+            for (File panorama : panoramas.listFiles())
+            {
+                if (panorama.isDirectory())
+                {
+                    for (j = 0; j < 6; j++)
+                    {
+                        loc = new ResourceLocation(
+                                "panorama:textures/gui/title/background/" + i + "/panorama_" + j + ".png");
+                        textureManager.loadTexture(loc,
+                                new FileTexture(loc,
+                                        new File(panorama,
+                                                "panorama_" + j + ".png")));
+                    }
+                    i++;
+                }
+            }
+        }
+        numPanoramas = i;
+    }
+
     private void setup(final FMLCommonSetupEvent event)
     {
-        // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
     }
 
     private void doClientStuff(final FMLClientSetupEvent event)
     {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}",
-                event.getMinecraftSupplier().get().gameSettings);
+//        loadPanoramas(event.getMinecraftSupplier().get());
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
-        // some example code to dispatch IMC to another mod
-        InterModComms.sendTo("examplemod", "helloworld", () -> {
-            LOGGER.info("Hello world from the MDK");
-            return "Hello world";
-        });
     }
 
     private void processIMC(final InterModProcessEvent event)
     {
-        // some example code to receive and process InterModComms from other
-        // mods
-        LOGGER.info("Got IMC {}", event.getIMCStream().
-                map(m -> m.getMessageSupplier().get()).
-                collect(Collectors.toList()));
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event)
     {
-        // do something when the server starts
-        LOGGER.info("HELLO from server starting");
-    }
-
-    // You can use EventBusSubscriber to automatically subscribe events on
-    // the contained class (this is subscribing to the MOD
-    // Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents
-    {
-        @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent)
-        {
-            // register a new block here
-            LOGGER.info("HELLO from Register Block");
-        }
     }
 
     static void renderPanorama(Minecraft mc)
@@ -138,7 +149,8 @@ public class Main
 
     static void saveScreenshot(Minecraft mc, int panoramaNum, int panoramaSide)
     {
-        final SimpleDateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+        final SimpleDateFormat FORMATTER =
+                new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
         final int FRAMEBUFFER_WIDTH = mc.getMainWindow().getFramebufferWidth();
         final int FRAMEBUFFER_HEIGHT =
                 mc.getMainWindow().getFramebufferHeight();

@@ -1,10 +1,18 @@
 package markil3.panorama;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.renderer.RenderSkybox;
+import net.minecraft.client.renderer.RenderSkyboxCube;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.ScreenshotEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -84,6 +92,28 @@ public class EventBus
                 break;
             }
             screenshotState++;
+        }
+    }
+    @SubscribeEvent
+    public static void onShowScreen(GuiScreenEvent.InitGuiEvent event)
+    {
+        if (event instanceof GuiScreenEvent.InitGuiEvent.Pre)
+        {
+            if (Main.numPanoramas > 0)
+            {
+                int panorama =
+                        MathHelper.floor(Math.random() * Main.numPanoramas);
+                MainMenuScreen screen;
+                if (event.getGui() instanceof MainMenuScreen)
+                {
+//                Main.loadPanoramas(Minecraft.getInstance());
+                    screen = (MainMenuScreen) event.getGui();
+                    screen.panorama =
+                            new RenderSkybox(new RenderSkyboxCube(new ResourceLocation(
+                                    "panorama:textures/gui/title/background/" + panorama + "/panorama")));
+                    System.out.printf("Displaying panorama %d\n", panorama);
+                }
+            }
         }
     }
 }
