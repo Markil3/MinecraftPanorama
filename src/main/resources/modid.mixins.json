@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "markil3.panorama.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "ScreenshotHook",
+    "GameRenderHook",
+    "TitleHook",
+    "GameRenderAccessor",
+    "TitleAccessor",
+    "CameraAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

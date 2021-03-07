@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "panorama",
+  "version": "${version}",
+
+  "name": "Panorama Mod",
+  "description": "This Minecraft mod provides the ability to take panoramic screenshots at any time with the Screenshot key (default to F2 on most Minecraft installations). On top of that, these screenshots will occupy the main menu background, allowing you to relive your adventures every time you boot up the game.",
+  "authors": [
+    "Markil 3"
+  ],
+  "contact": {
+    "homepage": "https://www.planetminecraft.com/mod/panorama/",
+    "sources": "https://github.com/Markil3/MinecraftPanorama",
+    "issues": "https://github.com/Markil3/MinecraftPanorama/issues"
+  },
+
+  "license": "GPL-3.0-only",
+  "icon": "assets/panorama/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "markil3.panorama.Main"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "modid.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "minecraft": "1.16.x"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "cloth-config2": "*"
+  }
+}
