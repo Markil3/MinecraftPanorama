@@ -152,8 +152,8 @@ public class Main
         final int FRAMEBUFFER_WIDTH = mc.getMainWindow().getFramebufferWidth();
         final int FRAMEBUFFER_HEIGHT =
                 mc.getMainWindow().getFramebufferHeight();
-        final int SCREENSHOT_WIDTH = 2048;
-        final int SCREENSHOT_HEIGHT = 2048;
+        final int SCREENSHOT_WIDTH = 1024;
+        final int SCREENSHOT_HEIGHT = 1024;
 
         File file = new File(mc.gameDir,
                 "panoramas/" + name + "/panorama_" + panoramaSide +
