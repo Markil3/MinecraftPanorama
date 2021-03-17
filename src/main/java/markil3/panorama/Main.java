@@ -3,21 +3,15 @@ package markil3.panorama;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -33,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("panorama")
@@ -84,7 +78,7 @@ public class Main
         File panoramas = new File(mc.gameDir, "panoramas");
         if (panoramas.isDirectory())
         {
-            for (File panorama : panoramas.listFiles())
+            for (File panorama : Optional.ofNullable(panoramas.listFiles()).orElse(new File[0]))
             {
                 if (panorama.isDirectory())
                 {
@@ -129,28 +123,32 @@ public class Main
 
     static void renderPanorama(Minecraft mc)
     {
+        final SimpleDateFormat FORMATTER =
+                new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+
         final int SCREENSHOT_WIDTH = 2048;
         final int SCREENSHOT_HEIGHT = 2048;
+
+        String name;
 
         RenderSystem.viewport(0, 0, SCREENSHOT_WIDTH, SCREENSHOT_HEIGHT);
 
         if (mc.world != null)
         {
+            name = FORMATTER.format(new Date());
             // We need to render an extra frame at the beginning, or
             // otherwise it won't render correctly.
             for (int i = -1; i < 6; i++)
             {
                 mc.gameRenderer.renderWorld(mc.getRenderPartialTicks(),
                         Util.nanoTime(), new MatrixStack());
-                saveScreenshot(mc, 0, i);
+                saveScreenshot(mc, name, i);
             }
         }
     }
 
-    static void saveScreenshot(Minecraft mc, int panoramaNum, int panoramaSide)
+    static void saveScreenshot(Minecraft mc, String name, int panoramaSide)
     {
-        final SimpleDateFormat FORMATTER =
-                new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
         final int FRAMEBUFFER_WIDTH = mc.getMainWindow().getFramebufferWidth();
         final int FRAMEBUFFER_HEIGHT =
                 mc.getMainWindow().getFramebufferHeight();
@@ -158,12 +156,18 @@ public class Main
         final int SCREENSHOT_HEIGHT = 2048;
 
         File file = new File(mc.gameDir,
-                "panoramas/" + FORMATTER.format(new Date()) + "/panorama_" + panoramaSide +
+                "panoramas/" + name + "/panorama_" + panoramaSide +
                         ".png");
-        file.getParentFile().mkdirs();
         try
         {
-            file.createNewFile();
+            if (!file.getParentFile().mkdirs())
+            {
+                throw new IOException("Could not create panorama directory " + file.getParent());
+            }
+            if (!file.createNewFile())
+            {
+                throw new IOException("Could not create file " + file.getAbsolutePath());
+            }
         }
         catch (IOException e)
         {
