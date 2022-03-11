@@ -9,3 +9,14 @@ Simply run the "gradle build" (or "./gradlew build" on OSX and Linux) to create 
 
 # Licensing
 This mod is licensed under the GNU General Public License version 3.0. In short, you are allowed to use and modify this mod for whatever you wish (including commercial use), but all distributions (modified or otherwise) must be under the same license, contain the source code (with changes highlighted), and preserve the copyright notices.
+
+# A Message on the Future of this Application.
+*To anyone who finds this useful.*
+
+*I've recently taken on a new job, and, due to the demands of a full-time developer job, I will no longer be able to finish this project. I've had a lot of fun with it, but continuing it for the future is simply unfeasible.*
+
+*With that said, this application is fully open-source, and anyone is available to freely use it, modify it, or maintain their own copy. The only thing I require is that the copyright and license is preserved. I hope that you find this useful.
+
+*May God bless you all,*
+
+*Markil 3*
